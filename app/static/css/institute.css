@@ -1,0 +1,63 @@
+.from-date-container label,
+.to-date-container label {
+    float: left;
+    background: none;
+}
+
+.from-date-container input,
+.to-date-container input {
+    background-color: white;
+    height: 2rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0 0 transparent, 0 0 5px #09f, 0 0 5px rgba(38,149,255,.5), 0 0 5px #09f, 0 0 5px #09f;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 4rem;
+    box-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 20px #09f, 0 0 20px #09f;
+    position: relative;
+    background: inherit;
+    overflow: hidden;
+    width: fit-content;
+    height: fit-content;
+    padding: 5%;
+    border-radius: 16px;
+}
+
+.filter-sec {
+    margin-right: 4rem;
+    text-align: center;
+    align-items: center;
+}
+
+.events-list-sec {
+    margin-bottom: 3rem;
+}
+
+.events-card-container {
+    flex-direction: column !important;
+}
+
+.event-date-header {
+    display: flex;
+    align-items: center;
+}
+
+.event-date-header h2 {
+    width: max-content;
+}
+
+.event-description-container {
+    display: flex;
+    align-items: start;
+}
+
+.event-description h2 {
+    display: flex;
+    align-items: start;
+}

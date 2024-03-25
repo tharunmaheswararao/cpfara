@@ -1,0 +1,202 @@
+body, * {
+    background-color: black;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-div {
+    border-bottom: 1px solid white;
+    box-shadow: 0 0 10px #09f;
+}
+
+.navbar-brand h2 {
+    color: white;
+    font-family: "Jura", sans-serif;
+    display: block;
+    font-size: 32px;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 40px #09f, 0 0 100px #09f;
+}
+
+.nav-content{
+    margin-left: 2rem !important;
+    margin-right: 2rem !important;
+}
+
+.subscribe {
+    margin-right: 2rem !important;
+}
+
+.hero-div {
+    margin-top: 4rem;
+    margin-left: 4rem;
+    margin-right: 4rem;
+    margin-bottom: 4rem;
+    text-align: center;
+    align-items: center;
+}
+
+.hero-div h2 {
+    text-transform: uppercase;
+    color: white;
+    font-family: "Jura", sans-serif;
+    background: none;
+    display: block;
+    font-size: 50px;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 40px #09f, 0 0 100px #09f;
+}
+
+@keyframes move {
+    0% { transform: translateX(0); }
+    50% { transform: translateX(30%); }
+    100% { transform: translateX(0); }
+}
+
+#events {
+    box-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 20px #09f, 0 0 20px #09f;
+    padding: 5%;
+    margin-left: 4rem;
+    margin-top: 5rem;
+    position: relative;
+    background: inherit;
+    overflow: hidden;
+    width: 70%;
+    height: 70%;
+    border-radius: 16px;
+    z-index: 1;
+    animation: move 4s linear infinite;
+    cursor: pointer;
+}
+
+#events:before {
+    content: '';
+    position: absolute;
+    background: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: -20px;
+    box-shadow: inset 0 0 500px rgba(255, 255, 255, .4); 
+    filter: blur(10px);
+    z-index: -1;
+}
+
+#events a {
+    text-decoration: none;
+}
+
+#events h2 {
+    color: white;
+    font-family: "Jura", sans-serif;
+    background: none;
+    display: block;
+    font-size: 50px;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 40px #09f, 0 0 100px #09f;
+}
+
+#events p {
+    color: white;
+    font-family:Arial, Helvetica, sans-serif;
+    margin-top: 2rem;
+    background: none;
+}
+
+.govt-sec,
+.pvt-sec {
+    margin-top: 8rem;
+    margin-left: 4rem;
+    margin-right: 4rem;
+    margin-bottom: 8rem;
+    text-align: center;
+    align-items: center;
+}
+
+.govt-heading h2,
+.pvt-heading h2,
+.events-header h2,
+.subscribe-header h2,
+.institute-name-header {
+    color: white;
+    text-transform: uppercase;
+    font-family: "Jura", sans-serif;
+    background: none;
+    display: block;
+    font-size: 50px;
+    font-weight: 500;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 40px #09f, 0 0 100px #09f;
+}
+
+.govt-websites,
+.pvt-websites {
+    display: flex;
+    justify-content: space-between;
+}
+
+.govt-card,
+.pvt-card {
+    box-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 20px #09f, 0 0 20px #09f;
+    padding: 5%;
+    margin-top: 5rem;
+    position: relative;
+    background: inherit;
+    overflow: hidden;
+    width: 30%;
+    height: 70%;
+    border-radius: 20px;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.govt-card:before,
+.pvt-card:before {
+    content: '';
+    position: absolute;
+    background: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: -20px;
+    box-shadow: inset 0 0 500px rgba(255, 255, 255, .4); 
+    filter: blur(10px);
+    z-index: -1;
+}
+
+.govt-card p,
+.pvt-card p {
+    background: none;
+    color: white;
+    font-family: "Jura", sans-serif;
+    background: none;
+    display: block;
+    font-size: 50px;
+    font-weight: 500;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 20px #09f, 0 0 20px #09f;
+}
+
+.account-img {
+    cursor: pointer;
+}
+
+.account-details {
+    display: none;
+    top: 4rem;
+    position: absolute;
+    background-color: white;
+}
+
+.account-details p {
+    background-color: white;
+    padding-left: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0;
+    padding-right: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid black;
+}
+
+.account-details p:nth-child(3) {
+    cursor: pointer;
+}

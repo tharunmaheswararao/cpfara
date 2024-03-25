@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <title>CPFARA</title>
+</head>
+<body>
+    <div>
+        <div class="nav-div">
+            <nav class="navbar navbar-light">
+                <div class="container-fluid nav-content justify-content-between">
+                    <a class="navbar-brand" href="/home"><h2>CPFARA</h2></a>
+                    <div class="d-flex align-items-center">
+                        <button class="btn subscribe btn-outline-danger my-2 my-sm-0" type="button" onclick="navigateToSubscribe()">Subscribe</button>
+                        <i style="color: white;" class="fa-solid fa-circle-user fa-2x ml-2"></i>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <div class="events-container">
+            <div class="events-sec">
+                <div class="events-header">
+                    <h2>EVENTS</h2>
+                </div>
+                <div class="events-domain-container">
+                    <div class="event-type-container">
+                        <div class="event-type-header">
+                            <h2>Event Type</h2>
+                        </div>
+                        <div class="event-type-options-container">
+                            <div class="event-type-options">
+                                <input type="checkbox" id="workshop" name="workshop"/>
+                                <label for="workshop">Workshop</label>
+                            </div>
+                            <div class="event-type-options">
+                                <input type="checkbox" id="conference" name="conference"/>
+                                <label for="conference">Conference</label>
+                            </div>
+                            <div class="event-type-options">
+                                <input type="checkbox" id="seminar" name="seminar"/>
+                                <label for="seminar">Seminar</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="domain-container">
+                        <div class="domain-heading">
+                            <h2>Choose Your Domain</h2>
+                        </div>
+                        <div class="domain-dropdown">
+                            <select id="domain" name="domain">
+                                <option value="" selected disabled>Select your domain</option>
+                                <option value="AI">Artficial Intelligence</option>
+                                <option value="ML">Machine Learning</option>
+                                <option value="Web development">Web Development</option>
+                                <option value="Blockchain">Blockchain</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="events-list-container">
+            <div class="events-list-sec">
+                <div class="events-list-header">
+                    <h2>Events List</h2>
+                </div>
+                <div class="events-list-cards-container">
+                    <div class="events-card-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../static/js/home.js"></script>
+<script type="text/javascript" src="../static/js/institute.js"></script>
+</html>

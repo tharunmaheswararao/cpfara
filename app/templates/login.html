@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/events.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/subscribe.css') }}" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300..700&display=swap" rel="stylesheet">
+    <title>CPFARA</title>
+</head>
+<body>
+    <div>
+        <div class="notification-container">
+            <div class="notification-sec">
+                <div class="subscribe-header">
+                    <h2>LOGIN NOW!</h2>
+                </div>
+                <div class="subscribe-form-container">
+                    <div class="subscribe-elements-container">
+                        <form id="login-form">
+                            <div class="username-container">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" required/>
+                            </div>
+                            <div class="password-container">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" required/>
+                            </div>
+                            <div class="login-btn">
+                                <button class="btn login btn-outline-primary" style="margin-right: 0 !important;" type="submit">Login</button>
+                            </div>
+                            <div class="signup-redirect-container">
+                                <a href="/signup"><span>Don't have an account?</span> Signup</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../static/js/home.js"></script>
+<script>
+    const loginForm = document.getElementById('login-form');
+
+    loginForm.addEventListener('submit', (event) => {
+        event.preventDefault(); 
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const data = {
+            username,
+            password,
+        };
+
+        fetch('/api/user/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                console.log('Logged in successfully!');
+                window.location.href = '/home';
+            } else if (data.error) {
+                alert('Error signing up: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again later.');
+        });
+    });
+
+</script>
+</html>
