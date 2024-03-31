@@ -21,11 +21,11 @@ def iit_events(bp):
         response = common_events.iit_events_renderer(data)
         return response
     
-def srm_events(bp):
-    @bp.route('/srm-events', methods=['POST'])
-    def srmevents():
+def vit_events(bp):
+    @bp.route('/vit-events', methods=['POST'])
+    def vitevents():
         data = request.get_json()
-        response = common_events.srm_events_renderer(data)
+        response = common_events.vit_events_renderer(data)
         return response
     
 def iiita_events(bp):
@@ -33,6 +33,20 @@ def iiita_events(bp):
     def iiitaevents():
         data = request.get_json()
         response = common_events.iiita_events_renderer(data)
+        return response
+    
+def srm_events(bp):
+    @bp.route('/srm-events', methods=['POST'])
+    def srmevents():
+        data = request.get_json()
+        response = common_events.srm_events_renderer(data)
+        return response
+    
+def saec_events(bp):
+    @bp.route('/saec-events', methods=['POST'])
+    def saecevents():
+        data = request.get_json()
+        response = common_events.saec_events_renderer(data)
         return response
 
 ############# API ROUTES ----------------> END

@@ -24,8 +24,8 @@ class Institutions(db.Model):
     __tablename__ = 'institutions'
     __table_args__ = {'extended_existing' : True}
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    event_date = db.Column(db.Date)
-    event_description = db.Column(db.String(255), nullable=False)
+    event_date = db.Column(db.Date, nullable=True)
+    event_description = db.Column(db.String(500), nullable=False)
     domain = db.Column(db.String(255), nullable=True)
     college_name = db.Column(db.String(255), nullable=True)
 

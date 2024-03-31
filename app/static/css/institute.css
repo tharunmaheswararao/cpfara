@@ -61,3 +61,23 @@
     display: flex;
     align-items: start;
 }
+
+.edit-data-contianer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    color: white !important;
+    text-align: center;
+    font-family: "Jura", sans-serif;
+    font-size: 32px;
+    text-shadow: 0 0 0 transparent, 0 0 10px #09f, 0 0 20px rgba(38,149,255,.5), 0 0 40px #09f, 0 0 100px #09f;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    cursor: pointer;
+    gap: 1%;
+}
+.edit-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}

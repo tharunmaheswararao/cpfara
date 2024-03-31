@@ -22,9 +22,9 @@
                         <button class="btn subscribe btn-outline-danger my-2 my-sm-0" type="button" onclick="navigateToSubscribe()">Subscribe</button>
                         <i style="color: white;" class="fa-solid fa-circle-user account-img fa-2x ml-2" onclick="displayAccountDetails()"></i>
                         <div class="account-details">
-                            <p class="username">Tharun</p>
-                            <p class="email">tharunsamael@gmail.com</p>
-                            <p class="log-out">Log Out</p>
+                            <p class="username"></p>
+                            <p class="email"></p>
+                            <p class="log-out" onclick="navigateToLogin()">Log Out</p>
                         </div>
                     </div>
                 </div>
@@ -65,14 +65,15 @@
                 <h2>PRIVATE WEBSITES</h2>
             </div>
             <div class="pvt-websites">
+                <div class="pvt-card" onclick="navigateToVIT()">
+                    <p>VIT</p>
+                </div>
                 <div class="pvt-card" onclick="navigateToSRM()">
                     <p>SRM</p>
                 </div>
-                {% for i in range(2) %}
-                    <div class="pvt-card">
-                        <p>KNOWFEST</p>
-                    </div>
-                {% endfor %}
+                <div class="pvt-card" onclick="navigateToSAEC()">
+                    <p>SAEC</p>
+                </div>
             </div>
         </div>
     </div>

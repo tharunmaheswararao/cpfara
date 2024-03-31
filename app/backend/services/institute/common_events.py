@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from sqlalchemy import and_
-from selenium import webdriver
 import urllib3
 import requests
 
@@ -423,9 +422,34 @@ def iiita_events_renderer(user_data):
 
 ########## --------------------> IITA APIs END <-------------------- ##########
     
-########## --------------------> SRM APIs START <-------------------- ##########
+########## --------------------> VIT APIs START <-------------------- ##########
     
-def srm_events_scrapper():
+def vit_scrapper(link): 
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    print(f"https://vit.ac.in{link}")
+    try:
+        response = http.get(f"https://vit.ac.in{link}", verify=False)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)       
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    event_name_div = soup.find('div', {'class': 'date-desc'})
+    event_name = event_name_div.find('h3')    
+    event_date_element = soup.find('div', {'class': 'date_event_place'})
+    event_date = event_date_element.find('span')
+    return(event_date.text + '-' + event_name.text)
+
+
+def vit_events_scrapper():
     text_list = []
     web_links=[]
    
@@ -443,31 +467,168 @@ def srm_events_scrapper():
     http.mount("https://", adapter)
     http.mount("http://", adapter)
 
-    while current_page <= max_pages:
-        url = "https://www.srmist.edu.in/events/"
-        current_url = f'{url}'
+    links = ["https://vit.ac.in/all-events", "https://vit.ac.in/all-past-events"]
 
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'}
-            response = http.get(current_url, headers=headers, verify=False)
-            response.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            print("Error:", e)
-        print(str(current_page + 1))
-        soup = BeautifulSoup(response.content, "html.parser")
-        events_div = soup.find('div', {'class': 'jet-listing-grid__items grid-col-desk-4 grid-col-tablet-2 grid-col-mobile-1 jet-listing-grid--39408'})
-        event_date = events_div.find_all('div', class_='jet-listing-dynamic-field__content')
-        event_name = events_div.find_all('a')
-        print(event_date, event_name)
-
-        next_button_container = soup.find('div', {'class': 'elementor-element elementor-element-60cb50ed elementor-widget elementor-widget-jet-smart-filters-pagination'})
-        print(next_button_container)
-        next_button = next_button_container.find_all('div')
-        print(next_button)
-        next_button.click()
+    for i in links:
+        while current_page <= max_pages:
+            url = ""
         
-        current_page += 1
-        web_links.append("https://www.srmist.edu.in/events/") 
+            if(current_page == 0):
+                url = f"{i}"
+            else:
+                url = f"{i}?page={current_page}"
+            current_url = f'{url}'
+
+            try:
+                response = http.get(current_url, verify=False)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                print("Error:", e)
+            print(current_page)
+            soup = BeautifulSoup(response.content, "html.parser")
+            events_div = soup.find('div', {'class': 'row_mar_minus'})
+            if(events_div):
+                anchor_tags = events_div.find_all('a')
+                for anchor_tag in anchor_tags:
+                    href = anchor_tag.get('href')
+                    text_list.append(vit_scrapper(href))
+            else:
+                current_page = 0
+                break
+            
+            current_page += 1
+            web_links.append(i) 
+
+    return text_list
+
+
+def vit_events_adder():
+    try:
+        events_list = vit_events_scrapper()
+        events_list = list(set(events_list))
+        print(events_list)
+        event_list = []
+        for event in events_list:
+            event_text = event.split("-")[1: ]
+            event_text = " ".join(event_text)
+            
+            existing_event = Institutions.query.filter_by(event_description = event_text).first()
+
+            if existing_event is None:
+                event_date = event.split("-")[0]
+                date_str = event_date.strip()
+                date_obj = datetime.strptime(date_str, "%d %b %Y")
+                formatted_date = date_obj.strftime("%Y-%m-%d")
+                event_list.append([formatted_date, event_text])
+                new_event = Institutions(event_description = event_text, event_date = formatted_date, college_name = "VIT")
+                insert_row(new_event)
+                commit_session()
+            else:
+                continue
+            
+        response = jsonify({'events_data': list(event_list), 'message': True})
+        return response
+    except Exception as e:
+        rollback_session()
+        return jsonify({"status": False, "error": str(e)})
+
+
+def vit_events_renderer(user_data):
+    try:
+        # vit_events_adder()
+        event_list = []    
+        if user_data["fromDateValue"] == "" and user_data["toDateValue"] == "":
+            print("full event list")
+            get_events = Institutions.query.filter(Institutions.college_name == "VIT").order_by(Institutions.event_date.desc()).all()
+        elif user_data["fromDateValue"] and user_data["toDateValue"] == "":
+            print("only from date")
+            get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"], Institutions.college_name == "VIT")).order_by(Institutions.event_date).all()
+        elif user_data["fromDateValue"] == "" and user_data["toDateValue"]:
+            print("only to date")
+            get_events = Institutions.query.filter(and_(Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "VIT")).order_by(Institutions.event_date).all()
+        else:
+            print("both")
+            get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"],
+                                        Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "VIT")).order_by(Institutions.event_date).all()
+        for eve in get_events:
+            date_obj = datetime.strptime(str(eve.event_date), "%Y-%m-%d")
+            formatted_date_str = date_obj.strftime("%a, %d %b %Y")
+            event_list.append([formatted_date_str, eve.event_description])
+        print(event_list)
+        response = jsonify({'events_data': list(event_list), 'message': True})
+        return response
+       
+    except Exception as e:
+        rollback_session()
+        return jsonify({"status": False, "error": str(e)})
+
+########## --------------------> VIT APIs END <-------------------- ##########
+    
+########## --------------------> SRM APIs START <-------------------- ##########
+    
+def srm_scrapper(link): 
+    dept_event_list = []
+
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+    print(link)
+    try:
+        response = http.get(link, verify=False)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)       
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    event_name_div = soup.find('div', {'class': 'jkit-block-container'})
+    
+    if(event_name_div is not None):
+        events = event_name_div.find_all('article')   
+        for event in events:
+            event_date = event.find('span', {'class': 'meta-date'})
+            event_name = event.find_all('span', {'class': 'jkit-postlist-title'})
+            dept_event_list.append(event_date.text + "-" + event_name[0].text)
+    
+    return(dept_event_list)
+
+
+def srm_events_scrapper():
+    text_list = []
+    web_links = []
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    try:
+        response = http.get("https://srmeaswari.ac.in/events/", verify=False)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    department_links_div = soup.find('div', {'class': 'elementor-element elementor-element-65bad6e de_scroll_animation_no elementor-widget elementor-widget-html'})
+    anchor_tags = department_links_div.find_all('option')
+    for anchor_tag in anchor_tags:
+        href = anchor_tag.get('value')
+        if (href != "All"):
+            for i in srm_scrapper(href):
+                text_list.append(i)
+            web_links.append(href)
 
     return text_list
 
@@ -475,23 +636,25 @@ def srm_events_scrapper():
 def srm_events_adder():
     try:
         events_list = srm_events_scrapper()
+        events_list = list(set(events_list))
         print(events_list)
         event_list = []
-        # for event in events_list:
-        #     event_text = event.split(" ")[1: ]
-        #     event_text = " ".join(event_text)
-        #     print(event_text)
+        for event in events_list:
+            event_text = event.split("-")[1: ]
+            event_text = " ".join(event_text)
             
-        #     existing_event = Institutions.query.filter_by(event_description = event_text).first()
+            existing_event = Institutions.query.filter_by(event_description = event_text).first()
 
-        #     if existing_event is None:
-        #         event_date = event.split(" ")[0]
-        #         event_list.append([event_date, event_text])
-        #         new_event = Institutions(event_description = event_text, event_date = event_date, college_name = "IIT")
-        #         insert_row(new_event)
-        #         commit_session()
-        #     else:
-        #         continue
+            if existing_event is None:
+                event_date = event.split("-")[0]
+                date_obj = datetime.strptime(event_date, "%B %d, %Y")
+                formatted_date = date_obj.strftime("%Y-%m-%d")
+                event_list.append([formatted_date, event_text])
+                new_event = Institutions(event_description = event_text, event_date = formatted_date, college_name = "SRM")
+                insert_row(new_event)
+                commit_session()
+            else:
+                continue
             
         response = jsonify({'events_data': list(event_list), 'message': True})
         return response
@@ -502,25 +665,113 @@ def srm_events_adder():
 
 def srm_events_renderer(user_data):
     try:
-        srm_events_adder()
+        # srm_events_adder()
         event_list = []    
-        # if user_data["fromDateValue"] == "" and user_data["toDateValue"] == "":
-        #     print("full event list")
-        #     get_events = Institutions.query.filter(Institutions.college_name == "IIT").order_by(Institutions.event_date.desc()).all()
-        # elif user_data["fromDateValue"] and user_data["toDateValue"] == "":
-        #     print("only from date")
-        #     get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"], Institutions.college_name == "IIT")).order_by(Institutions.event_date).all()
-        # elif user_data["fromDateValue"] == "" and user_data["toDateValue"]:
-        #     print("only to date")
-        #     get_events = Institutions.query.filter(and_(Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "IIT")).order_by(Institutions.event_date).all()
-        # else:
-        #     print("both")
-        #     get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"],
-        #                                 Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "IIT")).order_by(Institutions.event_date).all()
-        # for eve in get_events:
-        #     date_obj = datetime.strptime(str(eve.event_date), "%Y-%m-%d")
-        #     formatted_date_str = date_obj.strftime("%a, %d %b %Y")
-        #     event_list.append([formatted_date_str, eve.event_description])
+        if user_data["fromDateValue"] == "" and user_data["toDateValue"] == "":
+            print("full event list")
+            get_events = Institutions.query.filter(Institutions.college_name == "SRM").order_by(Institutions.event_date.desc()).all()
+        elif user_data["fromDateValue"] and user_data["toDateValue"] == "":
+            print("only from date")
+            get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"], Institutions.college_name == "SRM")).order_by(Institutions.event_date).all()
+        elif user_data["fromDateValue"] == "" and user_data["toDateValue"]:
+            print("only to date")
+            get_events = Institutions.query.filter(and_(Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "SRM")).order_by(Institutions.event_date).all()
+        else:
+            print("both")
+            get_events = Institutions.query.filter(and_(Institutions.event_date >= user_data["fromDateValue"],
+                                        Institutions.event_date <= user_data["toDateValue"], Institutions.college_name == "SRM")).order_by(Institutions.event_date).all()
+        for eve in get_events:
+            date_obj = datetime.strptime(str(eve.event_date), "%Y-%m-%d")
+            formatted_date_str = date_obj.strftime("%a, %d %b %Y")
+            event_list.append([formatted_date_str, eve.event_description])
+        print(event_list)
+        response = jsonify({'events_data': list(event_list), 'message': True})
+        return response
+       
+    except Exception as e:
+        rollback_session()
+        return jsonify({"status": False, "error": str(e)})
+    
+########## --------------------> SRM APIs END <-------------------- ##########
+    
+########## --------------------> SAEC APIs START <-------------------- ##########
+
+def saec_events_scrapper():
+    text_list = []
+    web_links = []
+
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    retry_strategy = Retry(
+        total=3,
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    http = requests.Session()
+    http.mount("https://", adapter)
+    http.mount("http://", adapter)
+
+    try:
+        response = http.get("https://www.saec.ac.in/news-events/", verify=False)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    events_div = soup.find('div', {'class': 'elementor-element elementor-element-571a1b3 elementor-widget elementor-widget-text-editor'})
+    events = events_div.find_all('h5')
+
+    for event in events:
+        text_list.append(event.text)
+
+    web_links.append("https://www.saec.ac.in/news-events/")
+    return text_list
+
+
+def saec_events_adder():
+    try:
+        events_list = saec_events_scrapper()
+        print(events_list)
+        event_list = []
+        for event in events_list:
+            event_text = str(event)
+            
+            existing_event = Institutions.query.filter_by(event_description = event_text).first()
+            
+            if existing_event is None:
+                event_list.append(event_text)
+                new_event = Institutions(event_description = event_text, college_name = "SAEC")
+                insert_row(new_event)
+                commit_session()
+            else:
+                continue
+        print(event_list)
+        response = jsonify({'events_data': list(event_list), 'message': True})
+        return response
+    except Exception as e:
+        rollback_session()
+        return jsonify({"status": False, "error": str(e)})
+
+
+def saec_events_renderer(user_data):
+    try:
+        # saec_events_adder()
+        event_list = []    
+        if user_data["fromDateValue"] == "" and user_data["toDateValue"] == "":
+            print("full event list")
+            get_events = Institutions.query.filter(Institutions.college_name == "SAEC").order_by(Institutions.event_date.desc()).all()
+        elif user_data["fromDateValue"] and user_data["toDateValue"] == "":
+            print("only from date")
+            get_events = Institutions.query.filter(Institutions.college_name == "SAEC").order_by(Institutions.event_date.desc()).all()
+        elif user_data["fromDateValue"] == "" and user_data["toDateValue"]:
+            print("only to date")
+            get_events = Institutions.query.filter(Institutions.college_name == "SAEC").order_by(Institutions.event_date.desc()).all()
+        else:
+            print("both")
+            get_events = Institutions.query.filter(Institutions.college_name == "SAEC").order_by(Institutions.event_date.desc()).all()
+        for eve in get_events:
+            event_list.append(["-", eve.event_description])
         print(event_list)
         response = jsonify({'events_data': list(event_list), 'message': True})
         return response
@@ -529,4 +780,4 @@ def srm_events_renderer(user_data):
         rollback_session()
         return jsonify({"status": False, "error": str(e)})
 
-########## --------------------> SRM APIs START <-------------------- ##########
+########## --------------------> SAEC APIs END <-------------------- ##########

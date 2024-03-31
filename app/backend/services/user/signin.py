@@ -39,3 +39,19 @@ def login_verification(user_data):
             return jsonify({"error": "Please provide correct password"})
     except Exception as e:
         return jsonify({"status": False, "error": str(e)})
+    
+def user_info(user_data):
+    try:
+        username = user_data['username']
+        
+        user_details = User.query.filter_by(username=username).all()
+        
+        user_data = []
+        for user in user_details:
+            user_data.append(user.username)
+            user_data.append(user.mail_id)
+        print(user_data)
+        response = jsonify({'user_data': user_data, 'message': True})
+        return response
+    except Exception as e:
+        return jsonify({"status": False, "error": str(e)})

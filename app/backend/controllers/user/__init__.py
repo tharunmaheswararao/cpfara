@@ -20,6 +20,13 @@ def user_login(bp):
         response = signin.login_verification(data)
         return response
     
+def user_info(bp):
+    @bp.route('/user-info', methods=['POST'])
+    def info():
+        data = request.get_json()
+        response = signin.user_info(data)
+        return response
+    
 
 ############# API ROUTES ----------------> END
 

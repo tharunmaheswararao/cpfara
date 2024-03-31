@@ -66,7 +66,7 @@
     background: none;
 }
 
-.event-type-options-container,
+
 .domain-dropdown,
 .date-picker-container {
     display: flex;
@@ -78,7 +78,27 @@
     background: none;
 }
 
-.event-type-options,
+.event-type-options-container {
+    display: flex;
+    flex-direction: row;
+    text-align: start;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    background: none;
+}
+
+.event-type-section-1,
+.event-type-section-2,
+.event-type-section-3 {
+    margin-right: 2rem;
+    background: none;
+}
+
+.event-type-options {
+    background: none;
+    margin-top: 2rem;
+}
+
 .from-date-container,
 .to-date-container {
     margin-right: 4rem;
@@ -91,6 +111,7 @@
 
 .domain-container {
     margin-right: 4rem;
+    margin-top: 2rem;
 }
 
 .domain-dropdown {

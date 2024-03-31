@@ -1,8 +1,12 @@
 from backend.controllers.user import user_frontend_blueprint, \
-    user_signup, user_login
-from backend.controllers.institute import aicte_events, iit_events, srm_events, iiita_events, institute_frontend_blueprint
-from backend.services.institute.common_events import aicte_events_adder, iit_events_adder
-from backend.controllers.subscriber import subscriber_frontend_blueprint
+    user_signup, user_login, user_info
+from backend.controllers.institute import aicte_events, iit_events, \
+    vit_events, iiita_events, srm_events, saec_events, \
+    institute_frontend_blueprint
+from backend.services.institute.common_events import aicte_events_adder, \
+    iit_events_adder
+from backend.controllers.subscriber import subscriber_mail, subscriber_frontend_blueprint
+from backend.controllers.events import kr_events, events_frontend_blueprint
 
 
 from flask import Flask, Blueprint, redirect, render_template, request, url_for
@@ -33,16 +37,21 @@ with app.app_context():
 user_api_blueprint = Blueprint('user_api', __name__)
 user_signup(user_api_blueprint)
 user_login(user_api_blueprint)
+user_info(user_api_blueprint)
 
 institute_api_blueprint = Blueprint('institute_api', __name__)
 aicte_events(institute_api_blueprint)
 iit_events(institute_api_blueprint)
-srm_events(institute_api_blueprint)
+vit_events(institute_api_blueprint)
 iiita_events(institute_api_blueprint)
+srm_events(institute_api_blueprint)
+saec_events(institute_api_blueprint)
 
 subscriber_api_blueprint = Blueprint('subscriber_api', __name__)
+subscriber_mail(subscriber_api_blueprint)
 
-
+events_api_blueprint = Blueprint('events_api', __name__)
+kr_events(events_api_blueprint)
 
 # @app.route("/")
 # @app.route("/home")
@@ -93,6 +102,9 @@ subscriber_api_blueprint = Blueprint('subscriber_api', __name__)
 # scheduler_thread.start()
 
 ##### SCRAPPER #####
+
+app.register_blueprint(events_api_blueprint, url_prefix='/api/events')
+app.register_blueprint(events_frontend_blueprint)
 
 app.register_blueprint(subscriber_api_blueprint, url_prefix='/api/subscriber')
 app.register_blueprint(subscriber_frontend_blueprint)
